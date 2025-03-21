@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import fields, models
 from datetime import datetime, timedelta
 
 class RealEstate(models.Model):
@@ -20,10 +20,10 @@ class RealEstate(models.Model):
     garden_orientation = fields.Selection(
         string='Garden Orientation',
         selection=[('north', 'North'), ('south', 'South'), ('east', 'East'), ('west', 'West')])
-    active = fields.Boolean(default=True, invisible=True)
+    active = fields.Boolean(default=True)
     state = fields.Selection(
         string='State',
-        selection=[('new', 'New'), ('sold', 'Sold'), ('offer received', 'Offer Received'), ('offer accepted', 'Offer Accepted'), ('canceled', 'Canceled')],
+        selection=[('new', 'New'), ('sold', 'Sold'), ('offer_received', 'Offer Received'), ('offer_accepted', 'Offer Accepted'), ('canceled', 'Canceled')],
         default='new',
         required = True,
         copy = False,

@@ -3,7 +3,7 @@
     "summary": "Test module",
     "version": "18.0",
     "license": "OEEL-1",
-    "depends": ["crm"],
+    "depends": ["base"],
     "data": [
         # Security files
         "security/res_groups.xml",
