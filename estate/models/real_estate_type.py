@@ -6,3 +6,10 @@ class PropertyType(models.Model):
 
     name = fields.Char(string="Name", required=True)
     description = fields.Text()
+    
+    # Add the back-reference to properties
+    property_ids = fields.One2many(
+        comodel_name='real.estate',
+        inverse_name='property_type_id',
+        string='Properties'
+    )

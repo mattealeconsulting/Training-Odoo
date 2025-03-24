@@ -1,8 +1,8 @@
-from odoo import models, fields
+from odoo import fields, models
 
 class PropertyTag(models.Model):
     _name = "real.estate.tag"
     _description = "Property Tag"
 
-    name = fields.Char(required=True)
+    name = fields.Char()
     

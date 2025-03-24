@@ -1,7 +1,7 @@
 {
-    "name": "Real Estate",
-    "summary": "Test module",
-    "version": "18.0",
+    "name": "Property Management",
+    "summary": "Property Listing",
+    "version": "18.0.1.0.0",
     "license": "OEEL-1",
     "depends": ["base"],
     "data": [
