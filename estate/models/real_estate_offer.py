@@ -26,7 +26,7 @@ class RealEstateOffer(models.Model):
         required=True,
         ondelete='cascade'
     )
-    type_id = fields.Many2one(related="property_id.property_type_id", store=True)
+    type_id = fields.Many2one(related="property_id.property_type_id")
 
     validity = fields.Integer(default=7)
     date_deadline = fields.Date(compute="_compute_date_deadline", inverse="_inverse_date_deadline", store=True)
@@ -71,10 +71,7 @@ class RealEstateOffer(models.Model):
         
         # Refuse all other offers
         other_offers = self.property_id.offer_ids.filtered(lambda r: r.id != self.id)
-        if other_offers:
-            other_offers.write({
-                'status': 'refused'
-            })
+        other_offers.write({'status': 'refused'})
         
         return True
         

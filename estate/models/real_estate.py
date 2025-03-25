@@ -44,11 +44,16 @@ class RealEstate(models.Model):
     )
 
     property_type_id = fields.Many2one(
-        comodel_name='real.estate.type',
-        string='Property Type',
-        required=True,
-        default=lambda self: self.env['real.estate.type'].search([], limit=1).id
+    comodel_name='real.estate.type',
+    string='Property Type',
+    required=True,
+    default=lambda self: self._default_property_type()
     )
+
+    def _default_property_type(self):
+        type_ref = self.env.ref('real_estate.default_property_type', raise_if_not_found=False)
+        return type_ref.id if type_ref else False
+
 
     offer_ids = fields.One2many(
         comodel_name='real.estate.offer',
@@ -67,7 +72,7 @@ class RealEstate(models.Model):
     @api.depends("offer_ids.price")
     def _compute_best_offer(self):
         for property in self:
-            property.best_offer = max(property.offer_ids.mapped('price')) if property.offer_ids else 0
+            property.best_offer = max(property.offer_ids.mapped('price'), default=0)
 
     @api.depends("living_area", "garden_area")
     def _compute_total_area(self):
@@ -76,13 +81,12 @@ class RealEstate(models.Model):
 
     @api.onchange("garden")
     def _onchange_garden(self):
-        for estate in self:
-            if not estate.garden:
-                estate.garden_area = 0
-                estate.garden_orientation = False
-            else:
-                estate.garden_area = 10
-                estate.garden_orientation = "north"
+        if not self.garden:
+            self.garden_area = 0
+            self.garden_orientation = False
+        else:
+            self.garden_area = 10
+            self.garden_orientation = "north"
 
     @api.onchange("date_available")
     def _onchange_date_available(self):
@@ -96,17 +100,18 @@ class RealEstate(models.Model):
                 }
                 
     def action_sold(self):
-        for record in self:
-            if record.state == 'canceled':
-                raise UserError(_("Canceled properties cannot be sold."))
-            accepted_offer = record.offer_ids.filtered(lambda o: o.status == 'accepted')
-            if accepted_offer:
-                record.buyer_id = accepted_offer[0].partner_id
-                record.selling_price = accepted_offer[0].price
-            elif not record.buyer_id:
-                raise UserError(_("You cannot mark a property as sold without setting a buyer."))
-                
-            record.state = 'sold'
+        self.ensure_one()
+        if self.state == 'canceled':
+            raise UserError(_("Canceled properties cannot be sold."))
+            
+        accepted_offers = self.offer_ids.filtered(lambda o: o.status == 'accepted')
+        if accepted_offers:
+            highest_offer = max(accepted_offers, key=lambda o: o.price)
+            self.buyer_id = highest_offer.partner_id
+        elif not self.buyer_id:
+            raise UserError(_("You cannot mark a property as sold without setting a buyer."))
+            
+        self.state = 'sold'
         return True
         
     def action_cancel(self):
