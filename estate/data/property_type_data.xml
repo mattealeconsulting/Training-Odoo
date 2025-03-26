@@ -1,0 +1,9 @@
+
+<odoo>
+    <data noupdate="0">
+        <record id="default_property_type" model="real.estate.type">
+            <field name="name">Standard Property</field>
+            <field name="description">Default property type</field>
+        </record>
+    </data>
+</odoo>
