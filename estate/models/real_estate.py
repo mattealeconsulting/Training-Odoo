@@ -43,6 +43,10 @@ class RealEstate(models.Model):
         copy=False
     )
 
+    def _default_property_type(self):
+        type_ref = self.env.ref('real_estate.default_property_type', raise_if_not_found=False)
+        return type_ref.id if type_ref else False
+
     property_type_id = fields.Many2one(
     comodel_name='real.estate.type',
     string='Property Type',
@@ -50,11 +54,7 @@ class RealEstate(models.Model):
     default=lambda self: self._default_property_type()
     )
 
-    def _default_property_type(self):
-        type_ref = self.env.ref('real_estate.default_property_type', raise_if_not_found=False)
-        return type_ref.id if type_ref else False
-
-
+    
     offer_ids = fields.One2many(
         comodel_name='real.estate.offer',
         inverse_name='property_id',
@@ -90,14 +90,13 @@ class RealEstate(models.Model):
 
     @api.onchange("date_available")
     def _onchange_date_available(self):
-        for estate in self:
-            if estate.date_available and estate.date_available < fields.Date.today():
-                return {
-                    "warning": {
-                        "title": _("Warning"),
-                        "message": _("The date is in the past")
-                    }
+        if self.date_available and self.date_available < fields.Date.today():
+            return {
+                "warning": {
+                    "title": _("Warning"),
+                    "message": _("The date is in the past")
                 }
+            }
                 
     def action_sold(self):
         self.ensure_one()
@@ -115,8 +114,7 @@ class RealEstate(models.Model):
         return True
         
     def action_cancel(self):
-        for record in self:
-            if record.state == 'sold':
-                raise UserError(_("Sold properties cannot be canceled."))
-            record.state = 'canceled'
+        if self.state == 'sold':
+            raise UserError(_("Sold properties cannot be canceled."))
+        self.state = 'canceled'
         return True
