@@ -5,6 +5,7 @@ from datetime import timedelta
 class RealEstateOffer(models.Model):
     _name = "real.estate.offer"
     _description = "Real Estate Offer"
+    _order = "price desc"
 
     price = fields.Float(required=True)
     status = fields.Selection(
@@ -26,10 +27,20 @@ class RealEstateOffer(models.Model):
         required=True,
         ondelete='cascade'
     )
-    type_id = fields.Many2one(related="property_id.property_type_id")
+
+    property_type_id = fields.Many2one(
+        comodel_name='real.estate.type',
+        related="property_id.property_type_id",
+        string='Property Type',
+        store=True
+    )
 
     validity = fields.Integer(default=7)
     date_deadline = fields.Date(compute="_compute_date_deadline", inverse="_inverse_date_deadline", store=True)
+
+    _sql_constraints = [
+        ('check_price', 'CHECK(price>0)', 'The offer price must be stricly positive!')
+    ]
 
     @api.depends("create_date", "validity")
     def _compute_date_deadline(self):

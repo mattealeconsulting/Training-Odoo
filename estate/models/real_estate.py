@@ -1,18 +1,20 @@
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from datetime import datetime, timedelta
+from odoo.tools.float_utils import float_is_zero, float_compare
 
 
 class RealEstate(models.Model):
     _name = "real.estate"
     _description = "Property Listing"
+    _order = "id desc"
 
     name = fields.Char(default="House")
     description = fields.Text()
     postcode = fields.Char()
     date_available = fields.Date(copy=False, default=lambda self: datetime.today() + timedelta(days=90))
     expected_price = fields.Float(required=True)
-    selling_price = fields.Float(readonly=True, copy=False)
+    selling_price = fields.Float(readonly=True, copy=False, default=0)
     bedrooms = fields.Integer(default=2)
     living_area = fields.Integer()
     facades = fields.Integer()
@@ -25,7 +27,7 @@ class RealEstate(models.Model):
     active = fields.Boolean(default=True)
     state = fields.Selection(
         string='State',
-        selection=[('new', 'New'), ('sold', 'Sold'), ('offer_received', 'Offer Received'), ('offer_accepted', 'Offer Accepted'), ('canceled', 'Canceled')],
+        selection=[('new', 'New'), ('offer_received', 'Offer Received'), ('offer_accepted', 'Offer Accepted'), ('sold', 'Sold'), ('canceled', 'Canceled')],
         default='new',
         copy=False,
         help="State of the real estate")
@@ -68,6 +70,18 @@ class RealEstate(models.Model):
 
     total_area = fields.Integer(compute="_compute_total_area")
     best_offer = fields.Float(compute="_compute_best_offer")
+
+    _sql_constraints = [
+        ('check_expected_price', 'CHECK(expected_price > 0)', 'The expected price must be strictly positive!'),
+        ('check_selling_price', 'CHECK(selling_price >= 0)', 'The selling price must be positive!')
+    ]
+    
+    @api.constrains('selling_price', 'expected_price')
+    def _check_price_difference(self):
+        for record in self:
+            if (not float_is_zero(record.selling_price, precision_digits=2) and 
+                float_compare(record.selling_price, record.expected_price * 0.9, precision_digits=2) < 0):
+                raise ValidationError(_("The selling price cannot be lower than 90% of the expected price!"))
 
     @api.depends("offer_ids.price")
     def _compute_best_offer(self):
