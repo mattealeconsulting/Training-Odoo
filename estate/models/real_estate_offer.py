@@ -5,7 +5,7 @@ from datetime import timedelta
 class RealEstateOffer(models.Model):
     _name = "real.estate.offer"
     _description = "Real Estate Offer"
-    _order = "price desc"
+    _order = "price desc, id"
 
     price = fields.Float(required=True)
     status = fields.Selection(
@@ -31,7 +31,6 @@ class RealEstateOffer(models.Model):
     property_type_id = fields.Many2one(
         comodel_name='real.estate.type',
         related="property_id.property_type_id",
-        string='Property Type',
         store=True
     )
 
