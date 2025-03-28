@@ -1,0 +1,87 @@
+<odoo>
+    <record id="property_invoice_view_list" model="ir.ui.view">
+        <field name="name">property.invoice.list</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <list string="Property Invoices">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="invoice_date"/>
+                <field name="amount_total"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="property_invoice_view_form" model="ir.ui.view">
+        <field name="name">property.invoice.form</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <form string="Property Invoice">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="invoice_date"/>
+                            <field name="invoice_date_due"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="amount_untaxed"/>
+                            <field name="amount_tax"/>
+                            <field name="amount_total"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Invoice Lines">
+                            <field name="invoice_line_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="quantity"/>
+                                    <field name="price_unit"/>
+                                    <field name="price_subtotal" sum="Total"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_property_invoices" model="ir.actions.act_window">
+        <field name="name">Property Invoices</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('invoice_line_ids.name', 'ilike', 'Commission for'), ('move_type', '=', 'out_invoice')]</field>
+        <field name="context">{'default_move_type': 'out_invoice'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No property invoices found
+            </p>
+            <p>
+                Property invoices will appear here when properties are sold.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_estate_account_root"
+              name="Real Estate Accounting"
+              web_icon="real_estate_accounting,static/description/icon.png"
+              sequence="90"/>
+
+    <menuitem id="menu_property_invoices"
+              name="Invoices"
+              parent="menu_estate_account_root"
+              action="action_property_invoices"
+              sequence="10"/>
+              
+</odoo>
