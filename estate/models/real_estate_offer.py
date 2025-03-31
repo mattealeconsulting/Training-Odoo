@@ -41,6 +41,23 @@ class RealEstateOffer(models.Model):
         ('check_price', 'CHECK(price>0)', 'The offer price must be stricly positive!')
     ]
 
+    @api.model
+    def create(self, vals):
+        if vals.get('property_id'):
+            property_id = self.env['real.estate'].browse(vals['property_id']).exists()
+
+            existing_offers = property_id.offer_ids
+            if existing_offers and vals.get('price'):
+                highest_offer = max(existing_offers.mapped('price'), default=0)
+                if vals['price'] <= highest_offer:
+                    raise UserError(_("The offer must be higher than existing offers."))
+
+            if property_id.state == 'new':
+                property_id.write({'state': 'offer_received'})
+
+        return super().create(vals)
+
+
     @api.depends("create_date", "validity")
     def _compute_date_deadline(self):
         for offer in self:

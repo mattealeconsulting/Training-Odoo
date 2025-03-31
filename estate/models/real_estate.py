@@ -111,6 +111,12 @@ class RealEstate(models.Model):
                     "message": _("The date is in the past")
                 }
             }
+    
+    @api.ondelete(at_uninstall=False)
+    def _unlink_if_state_valid(self):
+        for estate in self:
+            if estate.state not in ['new', 'canceled']:
+                raise UserError(_("You cannot delete a property that is not in 'New' or 'Canceled' state."))
                 
     def action_sold(self):
         self.ensure_one()

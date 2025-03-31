@@ -1,0 +1,65 @@
+<odoo>
+    <record id="property_view_kanban" model="ir.ui.view">
+        <field name="name">real.estate.kanban</field>
+        <field name="model">real.estate</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="property_type_id" create="false" group_create="false" group_delete="false" group_edit="false">
+                <field name="name"/>
+                <field name="expected_price"/>
+                <field name="best_offer"/>
+                <field name="selling_price"/>
+                <field name="state"/>
+                <field name="property_type_id"/>
+                <field name="tag_ids"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click o_kanban_record_has_image_fill">
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="name"/>
+                                </strong>
+
+                                <div>
+                                    <field name="tag_ids" widget="many2many_tags"/>
+                                </div>
+                                
+                                <div class="mt-2">
+                                    <strong>Expected Price: </strong>
+                                    <field name="expected_price" widget="monetary"/>
+                                </div>
+                                
+                                <div t-if=t-if="record.state in ['offer_received', 'offer_accepted', 'sold']" class="mt-1">
+                                    <strong>Best Offer: </strong>
+                                    <field name="best_offer" widget="monetary"/>
+                                </div>
+                                
+                                <div t-if=t-if="record.state in ['offer_accepted', 'sold']" class="mt-1">
+                                    <strong>Selling Price: </strong>
+                                    <field name="selling_price" widget="monetary"/>
+                                </div>
+                                
+                                <div class="mt-2">
+                                    <span t-attf-class="badge #{record.state == 'new' ? 'bg-primary' : record.state == 'offer_received' ? 'bg-info' : record.state == 'offer_accepted' ? 'bg-warning' : record.state == 'sold' ? 'bg-success' : 'bg-danger'}">
+                                        <field name="state" widget="badge"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_real_estate" model="ir.actions.act_window">
+        <field name="name">Properties</field>
+        <field name="res_model">real.estate</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="context">{'default_view_type': 'kanban'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first property
+            </p>
+        </field>
+    </record>
+</odoo>

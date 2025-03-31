@@ -12,7 +12,8 @@
         "security/ir.model.access.csv",
         # Views
         "views/real_estate_views.xml",
-        "views/estate_menus.xml"
+        "views/estate_menus.xml",
+        "views/res_users_views.xml"
 
     ],
     "demo": [
