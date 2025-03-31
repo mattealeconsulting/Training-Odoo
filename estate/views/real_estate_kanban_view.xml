@@ -28,18 +28,18 @@
                                     <field name="expected_price" widget="monetary"/>
                                 </div>
                                 
-                                <div t-if="record.state.raw_value == 'offer_received' || record.state.raw_value == 'offer_accepted' || record.state.raw_value == 'sold'" class="mt-1">
+                                <div t-if=t-if="record.state in ['offer_received', 'offer_accepted', 'sold']" class="mt-1">
                                     <strong>Best Offer: </strong>
                                     <field name="best_offer" widget="monetary"/>
                                 </div>
                                 
-                                <div t-if="record.state.raw_value == 'offer_accepted' || record.state.raw_value == 'sold'" class="mt-1">
+                                <div t-if=t-if="record.state in ['offer_accepted', 'sold']" class="mt-1">
                                     <strong>Selling Price: </strong>
                                     <field name="selling_price" widget="monetary"/>
                                 </div>
                                 
                                 <div class="mt-2">
-                                    <span t-attf-class="badge #{record.state.raw_value == 'new' ? 'bg-primary' : record.state.raw_value == 'offer_received' ? 'bg-info' : record.state.raw_value == 'offer_accepted' ? 'bg-warning' : record.state.raw_value == 'sold' ? 'bg-success' : 'bg-danger'}">
+                                    <span t-attf-class="badge #{record.state == 'new' ? 'bg-primary' : record.state == 'offer_received' ? 'bg-info' : record.state == 'offer_accepted' ? 'bg-warning' : record.state == 'sold' ? 'bg-success' : 'bg-danger'}">
                                         <field name="state" widget="badge"/>
                                     </span>
                                 </div>

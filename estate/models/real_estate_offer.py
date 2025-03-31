@@ -44,7 +44,7 @@ class RealEstateOffer(models.Model):
     @api.model
     def create(self, vals):
         if vals.get('property_id'):
-            property_id = self.env['real.estate'].browse(vals['property_id'])
+            property_id = self.env['real.estate'].browse(vals['property_id']).exists()
 
             existing_offers = property_id.offer_ids
             if existing_offers and vals.get('price'):

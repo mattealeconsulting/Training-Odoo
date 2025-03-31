@@ -1,4 +1,4 @@
-from odoo import api, fields, models, _
+from odoo import api, Command, fields, models, _
 from odoo.exceptions import UserError
 import logging
 
@@ -6,7 +6,7 @@ class RealEstate(models.Model):
     _inherit = "real.estate"
     
     def action_sold(self):
-        result = super(RealEstate, self).action_sold()
+        result = super().action_sold()
         
         self._create_invoice()
         
@@ -31,16 +31,16 @@ class RealEstate(models.Model):
                     'journal_id': journal.id,
                     'invoice_origin': property.name, 
                     'invoice_line_ids': [
-                        (0, 0, {
+                        Command.create({
                             'name': f'Commission for {property.name}',
                             'quantity': 1.0,
                             'price_unit': property.selling_price * 0.06,
-                        }),
-                        (0, 0, {
+                    }),
+                        Command.create({
                             'name': 'Administrative fees',
                             'quantity': 1.0,
                             'price_unit': 100.00,
-                        }),
+                    }),
                     ],
                     'narration': f"""
                         Property: {property.name}
